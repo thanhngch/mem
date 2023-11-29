@@ -63,7 +63,7 @@ func DisplayOutput(output string, showNumProcess, showCountProcess int) (linesCo
 			lines = append(lines, newline)
 			continue
 		}
-		if strings.TrimSpace(line) == "" {
+		if line == "" {
 			continue
 		}
 
@@ -86,7 +86,7 @@ func DisplayOutput(output string, showNumProcess, showCountProcess int) (linesCo
 				}
 			}
 
-			comm := line[beginComm:]
+			comm := strings.TrimSpace(line[beginComm:])
 			trimComm := comm
 			if strings.HasPrefix(comm, "/") {
 				if strings.HasPrefix(comm, "/Applications/") {
