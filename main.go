@@ -13,14 +13,16 @@ const BYTE_IEC = 1024
 const SHOW_NUM_PROCESS = 25
 const SHOW_COUNT_PROCESS = 5
 const LIMIT_COMMAND_CHAR = 150
+const GROUP_SYSTEM_APP = true
 
 func main() {
 	showNumProcess := flag.Int("n", SHOW_NUM_PROCESS, "number process to show")
 	showCountProcess := flag.Int("p", SHOW_COUNT_PROCESS, "number process to count each command")
+	groupSystemApp := flag.Bool("s", GROUP_SYSTEM_APP, "group system app command")
 	flag.Parse()
 
 	output := RunCommand(`sudo ps x -o %cpu,rss,command -m -A`)
-	d, totalMemory, totalProcess := DisplayOutput(output, *showNumProcess, *showCountProcess)
+	d, totalMemory, totalProcess := DisplayOutput(output, *showNumProcess, *showCountProcess, *groupSystemApp)
 	fmt.Println("Total memory using", ByteCountIEC(totalMemory))
 	fmt.Println("Total process", totalProcess)
 	fmt.Println(d)
@@ -42,7 +44,7 @@ type Process struct {
 	TotalP     int
 }
 
-func DisplayOutput(output string, showNumProcess, showCountProcess int) (linesCombine string, totalMemory int, totalProcess int) {
+func DisplayOutput(output string, showNumProcess, showCountProcess int, groupSystemApp bool) (linesCombine string, totalMemory int, totalProcess int) {
 	outputs := strings.Split(output, "\n")
 	comms := []string{}
 
@@ -97,10 +99,10 @@ func DisplayOutput(output string, showNumProcess, showCountProcess int) (linesCo
 					if trimComm == "" {
 						trimComm = newComms[len(newComms)-1]
 					}
-				} else if strings.HasPrefix(comm, "/System/Library/") ||
+				} else if groupSystemApp && (strings.HasPrefix(comm, "/System/Library/") ||
 					strings.HasPrefix(comm, "/usr/libexec/") ||
 					strings.HasPrefix(comm, "/usr/sbin/") ||
-					strings.HasPrefix(comm, "/Library/") {
+					strings.HasPrefix(comm, "/Library/")) {
 					trimComm = "System"
 				} else if strings.HasPrefix(comm, `/System/Applications/`) {
 					newComm := strings.TrimPrefix(comm, "/System/Applications/")
@@ -135,7 +137,7 @@ func DisplayOutput(output string, showNumProcess, showCountProcess int) (linesCo
 				r.TotalP++
 			}
 		} else {
-			fmt.Println("line", line, "11")
+			fmt.Println("line", line)
 		}
 	}
 
