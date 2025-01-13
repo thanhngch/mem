@@ -21,7 +21,7 @@ func main() {
 	groupSystemApp := flag.Bool("s", GROUP_SYSTEM_APP, "group system app command")
 	flag.Parse()
 
-	output := RunCommand(`sudo ps x -o %cpu,rss,command -m -A`)
+	output := RunCommand(`ps x -o %cpu,rss,command -m -A`)
 	d, totalMemory, totalProcess := DisplayOutput(output, *showNumProcess, *showCountProcess, *groupSystemApp)
 	fmt.Println("Total memory using", ByteCountIEC(totalMemory))
 	fmt.Println("Total process", totalProcess)
